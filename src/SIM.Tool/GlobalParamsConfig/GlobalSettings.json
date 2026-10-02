@@ -55,6 +55,7 @@
     "9.0.\\d.* XP1": "GlobalParams_9.0_XP1.json",
 
     //solr
+    "solr9": "GlobalParams_solr9.json",
     "solr": "GlobalParams_solr.json"
   },
 

@@ -510,7 +510,13 @@
     <Content Include="CustomSifConfig\Solr\Solr-SingleDeveloper.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="CustomSifConfig\Solr\Solr9-SingleDeveloper.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="GlobalParamsConfig\Solr\GlobalParams_solr.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GlobalParamsConfig\Solr\GlobalParams_solr9.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="ContainerFiles\Scripts\InstallDockerToolsModuleScript.txt">
