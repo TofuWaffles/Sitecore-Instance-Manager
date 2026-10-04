@@ -103,9 +103,10 @@ namespace SIM.Tool.Windows.UserControls.Install
 
     void IWizardStep.InitializeStep(WizardArgs wizardArgs)
     {
-      // TODO: This is where it loads the Solr params. Split based on version here
       string root = Path.Combine(Directory.GetCurrentDirectory(), "CustomSifConfig/Solr");
       this.tasker = new Tasker(root, "solr", null);
+
+      // TODO: Solr 9+ installations currently have untrusted SSL certs
       this.tasker9 = new Tasker(root, "solr9", null);
       this.FillSolrVersions();
       this.solrPortSelector.Text = tasker.Tasks.First(t => t.Name == "Solr").LocalParams.First(p => p.Name == "SolrPort").Value;

@@ -37,7 +37,7 @@ namespace SIM.Sitecore9Installer
       Dictionary<string, string> globalFilesMap = Configuration.Configuration.Instance.GlobalFilesMap;
       foreach (string pattern in globalFilesMap.Keys)
       {
-        // NOTE: This is matching solr9 on solr. It only needs to contain the string.
+        // NOTE: This is matching "solr9" on "solr". Matches only need to contain the string and does not have to be an exact match
         // It seems like a lot of other functionality relies on this behavior
         if (Regex.IsMatch(installationPackageName, pattern))
         {
