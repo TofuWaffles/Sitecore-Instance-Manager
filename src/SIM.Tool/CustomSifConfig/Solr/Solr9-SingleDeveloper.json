@@ -77,8 +77,8 @@
     ],
 
     "Solr.FileName": "[concat('solr-',parameter('SolrVersion'))]",
-    "Solr.Service": "[concat(parameter('SolrServicePrefix'),variable('Solr.FileName'))]",
-    "Solr.Uri": "[concat('https://',parameter('SolrDomain'),':',parameter('SolrPort'))]",
+    "Solr.Service": "[concat(variable('Solr.FileName'),'-',parameter('SolrDomain'),'-',parameter('SolrPort'))]",
+    "Solr.Uri": "[concat('https://localhost:',parameter('SolrPort'))]",
     "Solr.Zookeeper.Port": "[InvokeExpression(Command:concat('[int]', parameter('SolrPort'), '+1000'))]",
 
     "Solr.Install.Path": "[JoinPath(parameter('SolrInstallRoot'),variable('Solr.Service'))]",
