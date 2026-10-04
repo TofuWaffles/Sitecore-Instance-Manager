@@ -11,7 +11,8 @@ namespace SIM.Tool.Windows.UserControls.Install
   using JetBrains.Annotations;
   using SIM.Sitecore9Installer;
   using SIM.Sitecore9Installer.Configuration;
-  using System.Threading.Tasks;
+  using SIM.Sitecore9Installer.Tasks;
+  using SIM.Sitecore9Installer.Security;
 
   [UsedImplicitly]
   public partial class SolrDetails : IWizardStep, IFlowControl
@@ -49,6 +50,9 @@ namespace SIM.Tool.Windows.UserControls.Install
       if (Version.TryParse(solrVersion, out var v) && v.Major >= 9)
       {
         solrTasker = tasker9;
+        Task solrInstallTask = solrTasker.Tasks.Single(t => t.Name == "Solr");
+        solrInstallTask.LocalParams.AddOrUpdateParam("SolrAdminUserName", "admin", InstallParamType.String);
+        solrInstallTask.LocalParams.AddOrUpdateParam("SolrAdminPassword", SolrPasswordGenerator.Generate(), InstallParamType.String);
       }
       solrTasker.GlobalParams.First(p => p.Name == "SolrVersion").Value = solrVersion;
       solrTasker.GlobalParams.First(p => p.Name == "SolrDomain").Value = this.solrHostSelector.Text;
