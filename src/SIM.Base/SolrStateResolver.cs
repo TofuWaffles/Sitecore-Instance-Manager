@@ -12,12 +12,9 @@ namespace SIM
   {
     public virtual SolrState.CurrentState GetServiceState(ServiceControllerWrapper service)
     {
-      if (service != null)
+      if (service != null && service.Status == ServiceControllerStatus.Running)
       {
-        if (service.Status == ServiceControllerStatus.Running)
-        {
-          return SolrState.CurrentState.Running;
-        }
+        return SolrState.CurrentState.Running;
       }
 
       return SolrState.CurrentState.Stopped;
@@ -26,7 +23,7 @@ namespace SIM
     public virtual ServiceControllerWrapper GetService(string solrServiceName)
     {
       // Windows services' names are case insensitive
-      ServiceController serviceController = ServiceController.GetServices().FirstOrDefault(s => s.ServiceName.ToLowerInvariant() == solrServiceName.ToLowerInvariant());
+      ServiceController serviceController = ServiceController.GetServices().FirstOrDefault(s => string.Equals(s.ServiceName, solrServiceName, StringComparison.InvariantCultureIgnoreCase));
       if (serviceController == null)
       {
         return null;

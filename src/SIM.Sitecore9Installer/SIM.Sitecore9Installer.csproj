@@ -103,6 +103,7 @@
     <Compile Include="PackageMapping.cs" />
     <Compile Include="BaseParameters.cs" />
     <Compile Include="InstallParam.cs" />
+    <Compile Include="Security\SolrPasswordGenerator.cs" />
     <Compile Include="Tasks\EvaluateParamsTask.cs" />
     <Compile Include="Tasks\TaskDefinition.cs" />
     <Compile Include="Tasks\xConnectTaskWithPostSteps.cs" />

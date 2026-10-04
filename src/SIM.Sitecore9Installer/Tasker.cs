@@ -42,8 +42,7 @@ namespace SIM.Sitecore9Installer
         if (Regex.IsMatch(installationPackageName, pattern))
         {
           string path = Path.Combine(Directory.GetCurrentDirectory(), "GlobalParamsConfig");
-          string fileName = Directory.GetFiles(path, globalFilesMap[pattern], SearchOption.AllDirectories).Single();
-          globalParamsFile = fileName;
+          globalParamsFile = Directory.GetFiles(path, globalFilesMap[pattern], SearchOption.AllDirectories).Single();
           break;
         }
       }
@@ -65,9 +64,8 @@ namespace SIM.Sitecore9Installer
       List<InstallParam> deserializedGlobalParams;
       using (StreamReader reader = new StreamReader(Path.Combine(unInstallParamsPath, "globals.json")))
       {
-        string filePath = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "GlobalParamsConfig"),
+        globalParamsFile = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "GlobalParamsConfig"),
           reader.ReadLine(), SearchOption.AllDirectories).Single();
-        globalParamsFile = filePath;
         string data = reader.ReadToEnd();
         deserializedGlobalParams = JsonConvert.DeserializeObject<List<InstallParam>>(data);
       }
@@ -256,9 +254,7 @@ namespace SIM.Sitecore9Installer
 
     private void SaveUninstallTasks(string targetFilePath)
     {
-      string[] files = Directory.GetFiles(this.FilesRoot, "*.json", System.IO.SearchOption.TopDirectoryOnly);
-
-      foreach (string filePath in files)
+      foreach (string filePath in Directory.GetFiles(this.FilesRoot, "*.json", System.IO.SearchOption.TopDirectoryOnly))
       {
         var newFile = System.IO.Path.Combine(targetFilePath, Path.GetFileName(filePath));
         File.Copy(filePath, newFile, true);
