@@ -1,7 +1,7 @@
 using System;
 using System.Security.Cryptography;
 
-namespace SIM.Sitecore9Installer.Security   // adjust to your fork
+namespace SIM.Sitecore9Installer.Security
 {
   /// <summary>
   /// Generates Solr admin passwords that are safe to embed in
