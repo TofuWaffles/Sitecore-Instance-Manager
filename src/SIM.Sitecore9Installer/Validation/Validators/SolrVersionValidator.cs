@@ -56,7 +56,7 @@ namespace SIM.Sitecore9Installer.Validation.Validators
 
       if (solrVersionMaps == null || solrVersionMaps.Count < 1)
       {
-        yield return new ValidationResult(ValidatorState.Warning, 
+        yield return new ValidationResult(ValidatorState.Warning,
           "Cannot resolve Sitecore and Solr versions mappings from the 'GlobalSettings.json' file to validate Solr version.", null);
         yield break;
       }
@@ -78,7 +78,7 @@ namespace SIM.Sitecore9Installer.Validation.Validators
 
       if (string.IsNullOrEmpty(solrVersionsMap.Key))
       {
-        yield return new ValidationResult(ValidatorState.Warning, 
+        yield return new ValidationResult(ValidatorState.Warning,
           $"Cannot resolve Sitecore version {sitecoreVersion} from 'SolrVersionsMap' in the 'GlobalSettings.json' file to validate Solr version.", null);
         yield break;
       }
