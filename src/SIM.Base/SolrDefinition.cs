@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Text;
 
@@ -26,6 +27,7 @@ namespace SIM
     public string Service { get; set; }
 
     [RenderInDataGreed]
+    [GridReadOnly]
     public string AdminUsername
     {
       get => adminUsername; set => adminUsername = value?.Trim();
@@ -33,6 +35,7 @@ namespace SIM
 
     // Plain text by design: SIM is a local dev tool.
     [RenderInDataGreed]
+    [GridReadOnly]
     public string AdminPassword { get; set; }
 
     public bool HasCredentials
