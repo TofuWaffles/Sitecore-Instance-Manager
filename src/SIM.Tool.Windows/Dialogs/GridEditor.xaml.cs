@@ -35,7 +35,14 @@ namespace SIM.Tool.Windows.Dialogs
       IEnumerable<PropertyInfo> propertiesToRender = editContext.ElementType.GetProperties().Where(prop => Attribute.IsDefined(prop, typeof(RenderInDataGreedAttribute)));
       foreach (var propertyToRender in propertiesToRender)
       {
-        this.DataGrid.Columns.Add(new DataGridTextColumn() { Binding = new Binding(propertyToRender.Name), Header = propertyToRender.Name });
+        bool isReadOnly = Attribute.IsDefined(propertyToRender, typeof(GridReadOnlyAttribute));
+
+        this.DataGrid.Columns.Add(new DataGridTextColumn()
+        {
+          Binding = new Binding(propertyToRender.Name) { Mode = isReadOnly ? BindingMode.OneWay : BindingMode.TwoWay },
+          Header = propertyToRender.Name,
+          IsReadOnly = isReadOnly
+        });
       }
 
       if (editContext.ElementType.Name == "SolrDefinition")
