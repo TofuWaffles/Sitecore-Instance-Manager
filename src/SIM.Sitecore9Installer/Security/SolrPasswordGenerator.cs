@@ -15,7 +15,7 @@ namespace SIM.Sitecore9Installer.Security
     private const string Digits = "23456789";
     private const string All = Upper + Lower + Digits;
 
-    public static string Generate(int length = 24)
+    public static string Generate(int length = 8)
     {
       if (length < 3)
       {

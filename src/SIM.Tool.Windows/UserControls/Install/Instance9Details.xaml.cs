@@ -240,6 +240,14 @@ namespace SIM.Tool.Windows.UserControls.Install
         prerequisitesTask.ShouldRun = false;
       }
 
+      InstallParam solrAdminUsername = tasker.GlobalParams.FirstOrDefault(p => p.Name == "SolrAdminUserName");
+      InstallParam solrAdminPassword = tasker.GlobalParams.FirstOrDefault(p => p.Name == "SolrAdminPassword");
+      if (solr.HasCredentials)
+      {
+        tasker.GlobalParams.AddOrUpdateParam("SolrAdminUserName", solr.AdminUsername, InstallParamType.String);
+        tasker.GlobalParams.AddOrUpdateParam("SolrAdminPassword", solr.AdminPassword, InstallParamType.String);
+      }
+
       args.ScriptsOnly = this.scriptsOnly.IsChecked ?? false;
       args.Tasker = tasker;
 
@@ -396,7 +404,7 @@ namespace SIM.Tool.Windows.UserControls.Install
       Assert.IsNotNull(productVersion, nameof(productVersion));
 
       productVersion.DataContext = grouping.Where(x => x != null).GroupBy(p => p.ShortVersion).Where(x => x != null).OrderBy(p => Int32.Parse(p.Key));
-      SelectFirst(productVersion);           
+      SelectFirst(productVersion);
     }
 
     private void ProductRevisionChanged([CanBeNull] object sender, [CanBeNull] SelectionChangedEventArgs e)

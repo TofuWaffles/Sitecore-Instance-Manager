@@ -15,6 +15,7 @@
     "9.3.\\d.* XM1 Developer": "GlobalParams_9.3_XM1_SXA.json",
 
     // XM1
+    "10.5.\\d.* XM1": "GlobalParams_10.0_XM1.json",
     "10.4.\\d.* XM1": "GlobalParams_10.0_XM1.json",
     "10.3.\\d.* XM1": "GlobalParams_10.0_XM1.json",
     "10.2.\\d.* XM1": "GlobalParams_10.0_XM1.json",
