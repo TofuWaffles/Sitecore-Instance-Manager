@@ -113,8 +113,8 @@ namespace SIM.Sitecore9Installer.Validation.Validators
       {
         string solrUrl = task.LocalParams.Single(p => p.Name == SolrUrl).Value;
         string solrVersion = string.Empty;
-        string adminUsername = task.GlobalParams.Single(p => p.Name == "SolrAdminUserName").Value;
-        string adminPassword = task.GlobalParams.Single(p => p.Name == "SolrAdminPassword").Value;
+        string adminUsername = task.GlobalParams.FirstOrDefault(p => p.Name == "SolrAdminUserName")?.Value ?? string.Empty;
+        string adminPassword = task.GlobalParams.FirstOrDefault(p => p.Name == "SolrAdminPassword")?.Value ?? string.Empty;
 
         try
         {
