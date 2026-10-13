@@ -13,19 +13,18 @@ namespace SIM.Tool.Windows.UserControls.Install
   using SIM.Sitecore9Installer.Configuration;
   using SIM.Sitecore9Installer.Tasks;
   using SIM.Sitecore9Installer.Security;
+  using System.Collections.Generic;
 
   [UsedImplicitly]
   public partial class SolrDetails : IWizardStep, IFlowControl
   {
     /// <summary>
-    /// Task for Solr installs for versions <9
+    /// <para>Tasks for Solr installs</para>
+    /// <para>The key corresponds to the minimum version supported for the task type.</para>
+    /// <para>e.g. 9 will map to solr9</para>
     /// </summary>
-    private Tasker tasker;
+    private readonly Dictionary<int, Tasker> taskers = new Dictionary<int, Tasker>();
 
-    /// <summary>
-    /// Task for Solr installs for versions 9+
-    /// </summary>
-    private Tasker tasker9;
     #region Constructors
 
     public SolrDetails()
@@ -45,14 +44,18 @@ namespace SIM.Tool.Windows.UserControls.Install
 
     public bool OnMovingNext(WizardArgs wizardArgs)
     {
-      Tasker solrTasker = tasker;
+      Tasker solrTasker = taskers[0];
       string solrVersion = solrVersionSelector.SelectedValue as string;
-      if (Version.TryParse(solrVersion, out var v) && v.Major >= 9)
+      if (Version.TryParse(solrVersion, out var v) && v.Major >= 10)
       {
-        solrTasker = tasker9;
+        solrTasker = taskers[10];
         Task solrInstallTask = solrTasker.Tasks.Single(t => t.Name == "Solr");
         solrInstallTask.LocalParams.AddOrUpdateParam("SolrAdminUserName", "admin", InstallParamType.String);
         solrInstallTask.LocalParams.AddOrUpdateParam("SolrAdminPassword", SolrPasswordGenerator.Generate(), InstallParamType.String);
+      }
+      else if (v.Major >= 9)
+      {
+        solrTasker = taskers[9];
       }
       solrTasker.GlobalParams.First(p => p.Name == "SolrVersion").Value = solrVersion;
       solrTasker.GlobalParams.First(p => p.Name == "SolrDomain").Value = this.solrHostSelector.Text;
@@ -108,13 +111,13 @@ namespace SIM.Tool.Windows.UserControls.Install
     void IWizardStep.InitializeStep(WizardArgs wizardArgs)
     {
       string root = Path.Combine(Directory.GetCurrentDirectory(), "CustomSifConfig/Solr");
-      this.tasker = new Tasker(root, "solr", null);
+      if (!this.taskers.ContainsKey(0)) this.taskers.Add(0, new Tasker(root, "solr", null));
+      if (!this.taskers.ContainsKey(9)) this.taskers.Add(9, new Tasker(root, "solr9", null));
+      if (!this.taskers.ContainsKey(10)) this.taskers.Add(10, new Tasker(root, "solr10", null));
 
-      // TODO: Solr 9+ installations currently have untrusted SSL certs
-      this.tasker9 = new Tasker(root, "solr9", null);
       this.FillSolrVersions();
-      this.solrPortSelector.Text = tasker.Tasks.First(t => t.Name == "Solr").LocalParams.First(p => p.Name == "SolrPort").Value;
-      this.solrFolderSelector.Text = tasker.Tasks.First(t => t.Name == "Solr").LocalParams.First(p => p.Name == "SolrInstallRoot").Value;
+      this.solrPortSelector.Text = taskers[0].Tasks.First(t => t.Name == "Solr").LocalParams.First(p => p.Name == "SolrPort").Value;
+      this.solrFolderSelector.Text = taskers[0].Tasks.First(t => t.Name == "Solr").LocalParams.First(p => p.Name == "SolrInstallRoot").Value;
     }
 
     bool IWizardStep.SaveChanges(WizardArgs wizardArgs)

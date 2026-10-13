@@ -519,6 +519,9 @@
     <Content Include="GlobalParamsConfig\Solr\GlobalParams_solr9.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="GlobalParamsConfig\Solr\GlobalParams_solr10.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="ContainerFiles\Scripts\InstallDockerToolsModuleScript.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

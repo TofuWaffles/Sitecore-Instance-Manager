@@ -3,7 +3,7 @@
     "SolrVersion": {
       "Type": "String",
       "Description": "The version of Solr to install",
-      "DefaultValue": "10.0.0",
+      "DefaultValue": "9.8.1",
       "Validate": "[variable('Test.Solr.Download.Availability')]"
     },
     "SolrDomain": {
@@ -16,16 +16,6 @@
       "Description": "The Solr port.",
       "DefaultValue": 8983
     },
-    "SolrAdminUserName": {
-      "Type": "String",
-      "DefaultValue": "admin",
-      "Description": "The admin username for the Solr instance."
-    },
-    "SolrAdminPassword": {
-      "Type": "String",
-      "DefaultValue": "",
-      "Description": "The admin password for the Solr instance."
-    },
     "SolrServicePrefix": {
       "Type": "String",
       "Description": "The Solr service prefix name.",
@@ -33,7 +23,7 @@
     },
     "SolrInstallRoot": {
       "Type": "String",
-      "Description": "The file path to install Solr. This config will add the prefix and solr version e.g C:\\Solr becomes C:\\Solr\\[SolrServicePrefix]Solr-10.0.0",
+      "Description": "The file path to install Solr. This config will add the prefix and solr version e.g C:\\Solr becomes C:\\Solr\\[SolrServicePrefix]Solr-9.8.1",
       "DefaultValue": "C:\\"
     },
     "SolrSourceURL": {
@@ -49,7 +39,7 @@
     "JavaDownloadURL": {
       "Type": "String",
       "Description": "Download location of AdoptOpenJDK",
-      "DefaultValue": "https://corretto.aws/downloads/latest/amazon-corretto-21-x64-windows-jdk.zip"
+      "DefaultValue": "https://corretto.aws/downloads/latest/amazon-corretto-11-x64-windows-jdk.zip"
     },
     "ApacheCommonsDaemonURL": {
       "Type": "String",
@@ -78,8 +68,7 @@
 
     "Solr.FileName": "[concat('solr-',parameter('SolrVersion'))]",
     "Solr.Service": "[concat(variable('Solr.FileName'),'-',parameter('SolrDomain'),'-',parameter('SolrPort'))]",
-    "Solr.Uri": "[concat('https://localhost:',parameter('SolrPort'))]",
-    "Solr.Zookeeper.Port": "[InvokeExpression(Command:concat('[int]', parameter('SolrPort'), '+1000'))]",
+    "Solr.Uri": "[concat('https://',parameter('SolrDomain'),':',parameter('SolrPort'))]",
 
     "Solr.Install.Path": "[JoinPath(parameter('SolrInstallRoot'),variable('Solr.Service'))]",
     "Java.Install.Path": "[GetItem(Path:JoinPath(variable('Solr.Install.Path'),'jdk*'))]",
@@ -102,7 +91,7 @@
     "Solr.Download.StatusCode": "[SelectObject(InputObject:variable('Get.Solr.Download.Availability'),ExpandProperty:'StatusCode')]",
     "Get.Solr.Download.Availability": "[InvokeWebRequest(URI:variable('Solr.Download.URL'),Method:'head',UseBasicParsing:true)]",
 
-    "Solr.StartupType": "[if(parameter('SolrCloud'),'solrcloud','user-managed')]",
+    "Solr.StartupType": "[if(parameter('SolrCloud'),'solrcloud','')]",
 
     "Java.Download.Temp": "[JoinPath(variable('Temp.Location'),'java.zip')]",
     "ACD.Download.Temp": "[JoinPath(variable('Temp.Location'),'ACD.zip')]",
@@ -110,29 +99,6 @@
 
     "KeyStoreFilePath": "[JoinPath(variable('Solr.Install.Path'),'server','etc')]",
     "KeyStoreFile": "solr-ssl.keystore",
-
-    "Solr.Password": "[if(variable('Test.Solr.Password'),variable('Generate.Solr.Password'),parameter('SolrAdminPassword'))]",
-    "Test.Solr.Password": "[equal(parameter('SolrAdminPassword'),'')]",
-    "Generate.Solr.Password": "[RandomString(Length:20,DisAllowSpecial:True,EnforceComplexity:True)]",
-
-    "Solr.Security.JSON.Path": "[JoinPath(variable('Solr.Install.Path'),'server','solr','security.json')]",
-    "Solr.Security.Salt": "[RandomString(Length:16,DisAllowSpecial:True)]",
-    "Solr.Security.Salt.Hash": "[InvokeExpression(Command:variable('Solr.Security.Salt.Hash.Command'))]",
-    "Solr.Security.Salt.Hash.Command": "[concat('[Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes(\"',variable('Solr.Security.Salt'),'\"))')]",
-
-    "Solr.Security.Salt.Password": "[concat(variable('Solr.Security.Salt'),variable('Solr.Password'))]",
-    "Solr.Security.Password.Hash": "[InvokeExpression(Command:variable('Solr.Security.Password.Hash.Command'))]",
-    "Solr.Security.Password.Hash.Command": "[concat('$h=[System.Security.Cryptography.HashAlgorithm]::Create(\"SHA256\"); $2h=$h.ComputeHash($h.ComputeHash([System.Text.Encoding]::UTF8.GetBytes(\"',variable('Solr.Security.Salt.Password'),'\"))); [Convert]::ToBase64String($2h)')]",
-    "Solr.Security.Password.Hashed": "[concat(variable('Solr.Security.Password.Hash'),' ',variable('Solr.Security.Salt.Hash'))]",
-
-    "Solr.Credentials": "[concat(parameter('SolrAdminUserName'), ':', variable('Solr.Password'))]",
-    "Solr.AdminUser.Role": "sitecoreSolrAdminUserRole",
-    "Solr.GeneralUser.Role": "sitecoreGeneralUserRole",
-    "Solr.Authorization.Uri": "[concat(variable('Solr.Uri'), '/admin/authorization')]",
-    "Solr.Api.ContentType": "application/json",
-    "Solr.Credentials.Base64": "[InvokeExpression(Command:variable('Solr.Credentials.Base64.Command'))]",
-    "Solr.Credentials.Base64.Command": "[concat('[Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(\"', variable('Solr.Credentials'), '\"))')]",
-    "Solr.Authorization": "[concat('Basic ', variable('Solr.Credentials.Base64'))]",
 
     "Secure.Solr.Key.Password": "[ConvertToSecureString(String:variable('Plaintext.Solr.Key.Password'),AsPlainText:True,Force:True)]",
     "Plaintext.Solr.Key.Password": "[RandomString(Length:20,DisAllowSpecial:True)]",
@@ -145,11 +111,7 @@
     "Solr.Bin.Location": "[JoinPath(variable('Solr.Install.Path'),'bin')]",
     "Solr.CMD.Location": "[JoinPath(variable('Solr.Bin.Location'),'Solr.cmd')]",
     "Solr.In.CMD.Location": "[JoinPath(variable('Solr.Bin.Location'),'Solr.in.cmd')]",
-    "Solr.Untar.Command.ArgumentList": "[concat('-C ', variable('Solr.Install.Path'), ' -zxf ',variable('Solr.Download.Temp'), ' --strip-components=1')]",
-    "Solr.AuthEnable.ArgumentList": "[concat('zk cp ', variable('Solr.Security.JSON.Path'), ' zk:security.json -z ',  parameter('SolrDomain'), ':', variable('Solr.Zookeeper.Port'))]",
-    "Solr.Zk.Creds.And.Acls": "[concat('-DzkACLProvider=org.apache.solr.common.cloud.DigestZkACLProvider -DzkCredentialsProvider=org.apache.solr.common.cloud.DigestZkCredentialsProvider -DzkCredentialsInjector=org.apache.solr.common.cloud.VMParamsZkCredentialsInjector -DzkDigestUsername=', parameter('SolrAdminUserName'), ' -DzkDigestPassword=', variable('Solr.Password'))]",
-    "Solr.Zookeeper.UpdateAcls.ArgumentList": "[concat('zk updateacls / -z ', parameter('SolrDomain'), ':', variable('Solr.Zookeeper.Port'))]",
-    "Solr.Security.JSON.Body": "[concat('{\"authentication\":{\"blockUnknown\":true,\"class\":\"solr.BasicAuthPlugin\",\"credentials\":{\"', parameter('SolrAdminUserName'), '\":\"', variable('Solr.Security.Password.Hashed'), '\"},\"realm\":\"Solr Basic Auth\",\"forwardCredentials\":false},\"authorization\":{\"class\":\"solr.RuleBasedAuthorizationPlugin\",\"user-role\":{\"', parameter('SolrAdminUserName'), '\":[\"', variable('Solr.AdminUser.Role') ,'\",\"', variable('Solr.GeneralUser.Role') ,'\"]},\"permissions\":[{\"name\":\"all\",\"role\":[\"',variable('Solr.AdminUser.Role'),'\"]}]}}')]"
+    "Solr.Untar.Command": "[concat('tar zxf ',variable('Solr.Download.Temp'),' -C ', variable('Temp.Location'))]"
   },
   "Register": {
     "Tasks": {
@@ -160,8 +122,8 @@
       "MoveItem": "Move-Item",
       "WriteInformation": "Write-Information",
       "WriteError": "Write-Error",
-      "InvokeWebRequestTask": "Invoke-WebRequestTask",
-      "SetVariable": "Set-Variable"
+      "InvokeExpression": "Invoke-Expression",
+      "InvokeWebRequestTask": "Invoke-WebRequestTask"
     },
     "ConfigFunction": {
       "SelectObject": "Select-Object",
@@ -169,8 +131,7 @@
       "ConvertToSecureString": "ConvertTo-SecureString",
       "TestPath": "Test-Path",
       "GetItem": "Get-Item",
-      "TestNetConnection": "Test-NetConnection",
-      "InvokeExpression": "Invoke-Expression"
+      "TestNetConnection": "Test-NetConnection"
     }
   },
   "Tasks": {
@@ -222,12 +183,18 @@
       }
     },
     "UnpackSolr": {
-      "Description": "Unpacks Solr to working folder.",
-      "Type": "StartProcess",
+      "Description": "Unpacks Solr.",
+      "Type": "InvokeExpression",
       "Params": {
-        "FilePath": "tar.exe",
-        "ArgumentList": "[variable('Solr.Untar.Command.ArgumentList')]",
-        "Wait": true
+        "Command": "[variable('Solr.Untar.Command')]"
+      }
+    },
+    "MoveSolr": {
+      "Description": "Move Solr to working folder.",
+      "Type": "MoveItem",
+      "Params": {
+        "Path": "[JoinPath(variable('Temp.Location'),variable('Solr.Filename'),'*')]",
+        "Destination": "[variable('Solr.Install.Path')]"
       }
     },
     "DownloadJavaX64": {
@@ -285,26 +252,11 @@
           "set SOLR_SSL_KEY_STORE_PASSWORD=secret",
           "set SOLR_SSL_TRUST_STORE=etc/solr-ssl.keystore.p12",
           "set SOLR_SSL_TRUST_STORE_PASSWORD=secret",
-          "set SOLR_AUTH_TYPE=basic",
-          "[concat('set SOLR_AUTHENTICATION_OPTS=-Dbasicauth=',variable('Solr.Credentials'))]",
-          "[concat('set SOLR_HOST_ADVERTISE=',parameter('SolrDomain'))]",
-          "[concat('set SOLR_PORT_LISTEN=',parameter('SolrPort'))]"
+          "[concat('set SOLR_HOST=\"',parameter('SolrDomain'),'\"')]",
+          "[concat('set SOLR_Port=',parameter('SolrPort'))]"
         ],
         "Path": "[variable('Solr.In.CMD.Location')]"
       }
-    },
-    "AddSolrZookeeperSecurityConfiguration": {
-      "Description": "Adds Zookeeper digest credentials and ACL provider settings to solr.in.cmd (SolrCloud only). Solr zk commands inherit these via SOLR_OPTS; zkCli requires addauth digest.",
-      "Type": "AddContent",
-      "Params": {
-        "Value": [
-          "",
-          "[concat('set SOLR_ZK_CREDS_AND_ACLS=', variable('Solr.Zk.Creds.And.Acls'))]",
-          "set SOLR_OPTS=%SOLR_OPTS% %SOLR_ZK_CREDS_AND_ACLS%"
-        ],
-        "Path": "[variable('Solr.In.CMD.Location')]"
-      },
-      "Skip": "[not(parameter('SolrCloud'))]"
     },
     "CreateACDFolder": {
       "Type": "EnsurePath",
@@ -327,14 +279,6 @@
       "Params": {
         "Path": "[variable('ACD.Download.Temp')]",
         "DestinationPath": "[variable('ACD.Install.Path')]"
-      }
-    },
-    "EnableSolrBasicAuth": {
-      "Description": "Enables Solr Basic HTTP authentication (security.json).",
-      "Type": "AddContent",
-      "Params": {
-        "Value": ["[variable('Solr.Security.JSON.Body')]", ""],
-        "Path": "[variable('Solr.Security.JSON.Path')]"
       }
     },
     "CreateSOLRService": {
@@ -376,46 +320,6 @@
         "Uri": "[variable('Solr.Uri')]",
         "RetryCount": "180",
         "RetryDelay": "1000"
-      }
-    },
-    "EnableSolrCloudBasicAuth": {
-      "Skip": "[not(parameter('SolrCloud'))]",
-      "Description": "Enables Solr Cloud Basic HTTP authentication (security.json).",
-      "Type": "StartProcess",
-      "Params": {
-        "FilePath": "[variable('Solr.CMD.Location')]",
-        "ArgumentList": "[variable('Solr.AuthEnable.ArgumentList')]",
-        "Wait": true
-      }
-    },
-    "ApplySolrZookeeperAcls": {
-      "Skip": "[not(parameter('SolrCloud'))]",
-      "Description": "Applies digest ACLs to all existing Zookeeper nodes. Solr bin zk commands remain authorized via solr.in.cmd; zkCli requires addauth digest.",
-      "Type": "StartProcess",
-      "Params": {
-        "FilePath": "[variable('Solr.CMD.Location')]",
-        "ArgumentList": "[variable('Solr.Zookeeper.UpdateAcls.ArgumentList')]",
-        "Wait": true
-      }
-    },
-    "SetSolrCredentials": {
-      "Description": "Sets the Solr credentials.",
-      "Type": "SetVariable",
-      "Params": {
-        "Name": "SolrCredentials",
-        "Scope": "Global",
-        "Value": [
-          { "SolrAdminUserName": "[parameter('SolrAdminUserName')]" },
-          { "SolrAdminPassword": "[variable('Solr.Password')]" }
-        ]
-      }
-    },
-    "DisplayPassword": {
-      "Description": "Displays the Solr password.",
-      "Type": "WriteInformation",
-      "Params": {
-        "MessageData": "[concat('Solr Password: ',variable('Solr.Password'))]",
-        "InformationAction": "Continue"
       }
     }
   },
