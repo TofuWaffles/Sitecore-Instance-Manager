@@ -278,7 +278,6 @@
       "Type": "AddContent",
       "Params": {
         "Value": [
-          "",
           "[concat('set SOLR_MODE=',variable('Solr.StartupType'))]",
           "[concat('set SOLR_JAVA_HOME=\"',variable('Java.Install.Path'),'\"')]",
           "set SOLR_SSL_KEY_STORE=etc/solr-ssl.keystore.p12",
