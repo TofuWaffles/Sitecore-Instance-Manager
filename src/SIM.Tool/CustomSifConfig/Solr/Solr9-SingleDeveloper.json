@@ -56,6 +56,11 @@
       "Type": "String",
       "Description": "Registry location of Windows Services.",
       "DefaultValue": "HKLM:SYSTEM\\CurrentControlSet\\Services"
+    },
+    "SolrServiceStartTimeout": {
+      "Type": "Int",
+      "Description": "Solr service start timeout.",
+      "DefaultValue": 8000
     }
   },
   "Variables": {
@@ -69,7 +74,6 @@
     "Solr.FileName": "[concat('solr-',parameter('SolrVersion'))]",
     "Solr.Service": "[concat(variable('Solr.FileName'),'-',parameter('SolrDomain'),'-',parameter('SolrPort'))]",
     "Solr.Uri": "[concat('https://',parameter('SolrDomain'),':',parameter('SolrPort'))]",
-
     "Solr.Install.Path": "[JoinPath(parameter('SolrInstallRoot'),variable('Solr.Service'))]",
     "Java.Install.Path": "[GetItem(Path:JoinPath(variable('Solr.Install.Path'),'jdk*'))]",
     "ACD.Install.Path": "[JoinPath(variable('Solr.Install.Path'),'daemon')]",
@@ -111,7 +115,8 @@
     "Solr.Bin.Location": "[JoinPath(variable('Solr.Install.Path'),'bin')]",
     "Solr.CMD.Location": "[JoinPath(variable('Solr.Bin.Location'),'Solr.cmd')]",
     "Solr.In.CMD.Location": "[JoinPath(variable('Solr.Bin.Location'),'Solr.in.cmd')]",
-    "Solr.Untar.Command": "[concat('tar zxf ',variable('Solr.Download.Temp'),' -C ', variable('Temp.Location'))]"
+    "Solr.Untar.Command": "[concat('tar zxf ',variable('Solr.Download.Temp'),' -C ', variable('Temp.Location'))]",
+    "Solr.Cer.Path": "[concat(variable('Solr.Install.Path'),'\\server\\etc\\solr-ssl.cer')]"
   },
   "Register": {
     "Tasks": {
@@ -123,7 +128,8 @@
       "WriteInformation": "Write-Information",
       "WriteError": "Write-Error",
       "InvokeExpression": "Invoke-Expression",
-      "InvokeWebRequestTask": "Invoke-WebRequestTask"
+      "InvokeWebRequestTask": "Invoke-WebRequestTask",
+      "ImportCertificate": "Import-Certificate"
     },
     "ConfigFunction": {
       "SelectObject": "Select-Object",
@@ -240,12 +246,28 @@
         "Wait": true
       }
     },
+    "ExportSolrPublicCert": {
+      "Description": "Exports the Solr public certificate (no private key).",
+      "Type": "StartProcess",
+      "Params": {
+        "FilePath": "[variable('Java.KeyTool.Location')]",
+        "ArgumentList": "[concat('-exportcert -alias solr-ssl -rfc -storepass secret -keystore ',variable('Solr.JKS.Keystore.Path'),' -file ',variable('Solr.Cer.Path'))]",
+        "Wait": true
+      }
+    },
+    "TrustSolrCert": {
+      "Description": "Adds the Solr certificate to LocalMachine Trusted Root.",
+      "Type": "ImportCertificate",
+      "Params": {
+        "FilePath": "[variable('Solr.Cer.Path')]",
+        "CertStoreLocation": "Cert:\\LocalMachine\\Root"
+      }
+    },
     "AddSOLRConfiguration": {
       "Description": "Adds the SSL keys and Java location to the configuration.",
       "Type": "AddContent",
       "Params": {
         "Value": [
-          "",
           "[concat('set SOLR_MODE=',variable('Solr.StartupType'))]",
           "[concat('set SOLR_JAVA_HOME=\"',variable('Java.Install.Path'),'\"')]",
           "set SOLR_SSL_KEY_STORE=etc/solr-ssl.keystore.p12",
