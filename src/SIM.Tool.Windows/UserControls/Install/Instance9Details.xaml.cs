@@ -25,6 +25,7 @@ using SIM.Sitecore9Installer;
 using SIM.Tool.Windows.Dialogs;
 using SIM.Tool.Windows.UserControls.Helpers;
 using SIM.Sitecore9Installer.Tasks;
+using SIM.Sitecore9Installer.Security;
 
 namespace SIM.Tool.Windows.UserControls.Install
 {
@@ -244,8 +245,14 @@ namespace SIM.Tool.Windows.UserControls.Install
       InstallParam solrAdminPassword = tasker.GlobalParams.FirstOrDefault(p => p.Name == "SolrAdminPassword");
       if (solr.HasCredentials)
       {
-        tasker.GlobalParams.AddOrUpdateParam("SolrAdminUserName", solr.AdminUsername, InstallParamType.String);
-        tasker.GlobalParams.AddOrUpdateParam("SolrAdminPassword", solr.AdminPassword, InstallParamType.String);
+        SetParam(tasker, "SolrAdminUserName", solr.AdminUsername);
+        SetParam(tasker, "SolrAdminPassword", solr.AdminPassword);
+
+        // Generated once, so the Solr user and the CM connection string match
+        string connUser = (args.InstanceName + "_solr").ToLowerInvariant();
+        string connPass = SolrPasswordGenerator.Generate();
+        SetParam(tasker, "SolrConnectionUserName", connUser);
+        SetParam(tasker, "SolrConnectionUserPassword", connPass);
       }
 
       args.ScriptsOnly = this.scriptsOnly.IsChecked ?? false;
@@ -386,6 +393,29 @@ namespace SIM.Tool.Windows.UserControls.Install
         DataContext = new Model();
         _StandaloneProducts = ProductManager.StandaloneProducts.Where(p => int.Parse(p.ShortVersion) >= 90 && !p.IsSitecoreWdpPackage);
         this.Solrs.DataContext = ProfileManager.Profile.Solrs;
+      }
+    }
+
+    private static void SetParam(Tasker tasker, string name, string value)
+    {
+      InstallParam global = tasker.GlobalParams.FirstOrDefault(p => p.Name == name);
+      if (global != null)
+      {
+        global.Value = value;   // same pattern as SolrUrl, SqlAdminPassword, etc.
+      }
+      else
+      {
+        tasker.GlobalParams.AddOrUpdateParam(name, value, InstallParamType.String);
+      }
+
+      // Set the task copies directly, so this doesn't depend on the global-to-local event
+      foreach (Task task in tasker.Tasks)
+      {
+        InstallParam local = task.LocalParams[name];
+        if (local != null)
+        {
+          local.Value = value;
+        }
       }
     }
 

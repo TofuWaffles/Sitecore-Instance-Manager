@@ -504,6 +504,9 @@
     <Content Include="GlobalParamsConfig\XM\GlobalParams_10.0_XM1.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="GlobalParamsConfig\XM\GlobalParams_10.5_XM1.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="GlobalParamsConfig\XP\GlobalParams_10.0_XP1.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
