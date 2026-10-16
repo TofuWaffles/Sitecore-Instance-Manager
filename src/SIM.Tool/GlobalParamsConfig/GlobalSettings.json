@@ -42,6 +42,7 @@
     "9.0.\\d.* XP0": "GlobalParams_9.0_XP0.json",
 
     // XP1
+    "10.5.\\d.* XP1": "GlobalParams_10.5_XP1.json",
     "10.4.\\d.* XP1": "GlobalParams_10.4_XP1.json",
     "10.3.2.* XP1": "GlobalParams_10.4_XP1.json",
     "10.3.\\d.* XP1": "GlobalParams_10.2_XP1.json",

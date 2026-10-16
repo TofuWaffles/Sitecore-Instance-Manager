@@ -561,6 +561,9 @@
     <Content Include="GlobalParamsConfig\XP\GlobalParams_10.4_XP1.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="GlobalParamsConfig\XP\GlobalParams_10.5_XP1.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="GlobalParamsConfig\XP\GlobalParams_9.2_XP0.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
